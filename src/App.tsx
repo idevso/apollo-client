@@ -1,24 +1,66 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import Categories from "./components/categories/categories";
+import Message from "./components/message/message";
+import { useSelector } from "react-redux";
+import { Structure } from "./store/reducers";
+import { useLazyQuery, gql } from '@apollo/client';
+import { useDispatch } from "react-redux";
+import {HeaderContainer, CategoriesContainer, HeaderText, MessageContainer, JokeButtonContainer, RequestJokeButton, RequestJokeButtonText } from "./styles"
 
-function App() {
+
+const GETRANDOMJOKE = gql`
+  query GetRandomJoke($category: String!){
+    randomJoke(category: $category){
+      value
+    }
+  }
+`;
+
+
+const App = (): JSX.Element => {
+
+  const dispatch = useDispatch()
+  const category: string = useSelector<Structure, Structure["currentCategory"]>((state) => state.currentCategory);
+  let joke: string = "";
+
+  const [
+    getJoke, 
+    { loading, data }
+  ] = useLazyQuery(GETRANDOMJOKE, { variables : {category}, });
+
+
+  if (!loading && data){
+    joke = data.randomJoke.value;
+    dispatch({type : "store", data : joke});
+  }
+
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+      <HeaderContainer>
+        <HeaderText>
+          Categories
+        </HeaderText>
+      </HeaderContainer>
+
+      <CategoriesContainer>
+        <Categories />
+      </CategoriesContainer>
+
+      <MessageContainer>
+        <Message joke={joke} />
+      </MessageContainer>
+
+      <JokeButtonContainer>
+          <RequestJokeButton onClick={() => {
+              if (category) { return getJoke()}
+              else alert("please select a category")
+              }}>
+
+              <RequestJokeButtonText>
+                Pop A Joke!
+              </RequestJokeButtonText>
+          </RequestJokeButton>
+      </JokeButtonContainer>
+
     </div>
   );
 }
