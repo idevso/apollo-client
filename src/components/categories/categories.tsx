@@ -28,7 +28,7 @@ function Categories(): JSX.Element | null {
         }
     }
 
-    if (loading || error) return null;
+    if (loading || error) return null; // return error or loading component
     
     return (
         <CategoryList>
