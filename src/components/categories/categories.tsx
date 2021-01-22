@@ -13,7 +13,7 @@ const CategoriesList = gql`
 
 function Categories(): JSX.Element | null {
     const dispatch = useDispatch();
-    const [activeCategory, setCategory] = useState("room");
+    const [activeCategory, setCategory] = useState<string>();
     const { loading, error, data } = useQuery(CategoriesList);
     let categories: string[] = [];
 
